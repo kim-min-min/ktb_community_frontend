@@ -1,0 +1,7 @@
+/* src/index.css */
+
+@import "./styles/base.css";    /* reset, 배경, 공통 요소 */
+@import "./styles/layout.css";  /* 전체 레이아웃, 헤더 등 */
+@import "./styles/auth.css";    /* 로그인/회원가입 페이지 */
+@import "./styles/posts.css";   /* 게시글 목록/상세/작성/수정 */
+@import "./styles/profile.css"; /* 프로필 아바타 + 드롭다운 */

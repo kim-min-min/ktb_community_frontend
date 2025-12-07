@@ -1,0 +1,10 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: url("/night_pixel_room.jpeg") no-repeat center center fixed;
+  background-size: cover;
+}

@@ -1,0 +1,142 @@
+/* ================================
+   로그인 / 회원가입 공통 스타일
+   ================================ */
+
+/* 페이지 가운데 정렬 */
+.page-container {
+  min-height: auto;
+  padding-top: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 로그인 / 회원가입 카드 */
+.login-card,
+.signup-card {
+  width: 360px;
+  padding: 28px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(3px);
+}
+
+/* 제목 */
+.login-title,
+.signup-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* 폼 필드 공통 */
+.field {
+  margin-bottom: 18px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* input / textarea 공통 스타일 */
+.field-input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  color: #1e1e2f;;
+  backdrop-filter: blur(4px);
+  outline: none;
+  transition: 0.15s ease-in-out;
+}
+
+/* 기본 버튼 */
+.button-primary {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  color: white;
+  background: #7b5cff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button-primary:disabled {
+  opacity: 0.6;
+}
+
+/* 하단 텍스트 링크 */
+.bottom-link {
+  margin-top: 16px;
+  text-align: center;
+  color: white;
+}
+
+.button-text {
+  background: none;
+  border: none;
+  color: #d8c7ff;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+
+
+/* ================================
+   ⭐ 프로필 사진 업로드 영역 (회원가입)
+   ================================ */
+
+.profile-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* 동그란 프로필 선택 버튼 */
+.profile-circle {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  color: #f0f0ff;
+  font-size: 13px;
+  font-weight: 500;
+
+  transition: 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.profile-circle:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-style: solid;
+}
+
+.profile-circle span {
+  pointer-events: none; /* 이미지 들어가도 글자가 방해 X */
+}
+
+/* 안내 텍스트 */
+.profile-subtext {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(240, 240, 255, 0.9);
+  text-align: center;
+}
