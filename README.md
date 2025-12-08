@@ -1,4 +1,4 @@
-# 🎙️심야톡방 NightTalk
+# 🎉심야톡방 NightTalk
 
 ## Front-end 소개
 
