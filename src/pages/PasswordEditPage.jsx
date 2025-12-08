@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
+const BASE_URL = "/api";
+
 export default function PasswordEditPage() {
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("access_token") || "";
 
   const [password, setPassword] = useState("");

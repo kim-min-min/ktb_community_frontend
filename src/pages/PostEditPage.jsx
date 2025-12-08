@@ -1,12 +1,12 @@
 // src/pages/PostEditPage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+const BASE_URL = "/api";
 
 export default function PostEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("access_token") || "";
 
   const rawUser = localStorage.getItem("user");

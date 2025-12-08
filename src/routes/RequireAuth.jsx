@@ -19,6 +19,6 @@ export default function RequireAuth({ children }) {
     );
   }
 
-  // ✅ 로그인 되어 있으면 원래 페이지 렌더링
+  // 로그인 되어 있으면 원래 페이지 렌더링
   return children;
 }
