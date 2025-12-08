@@ -131,8 +131,3 @@
 <br/>
 <br/>
 <br/>
-
-
-<p align="center">
-  <img src="https://github.com/100-hours-a-week/5-erica-express-fe/assets/81230764/97f46705-5714-40fe-a3c6-ce5250a24285" style="width:200px; margin: 0 auto"/>
-</p>
