@@ -15,7 +15,7 @@ export async function apiFetch(path, options = {}, navigate) {
   if (res.status === 401) {
     logout();
     navigate("/login", { replace: true });
-    throw new Error("Unauthorized");
+    throw new Error("로그인이 만료되었습니다. 다시 로그인해주세요.");
   }
 
   return res;
