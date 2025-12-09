@@ -16,7 +16,7 @@ export default function AppHeader() {
     ? `${BASE_URL}/${currentUser.profile_image_path}`
     : "/default_profile.png";
 
-  // 🔥 로그인 직후 / 페이지 이동 후 드롭다운 자동 닫기 (핵심 1줄)
+  // 로그인 직후 / 페이지 이동 후 드롭다운 자동 닫기 (핵심 1줄)
   useEffect(() => setOpen(false), [location.pathname, currentUser?.id]);
 
   return (
