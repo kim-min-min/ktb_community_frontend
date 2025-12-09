@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const BASE_URL = "/api";
@@ -8,6 +8,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 로그인 페이지 들어오는 순간 항상 토큰/유저 비우기
+  useEffect(() => {
+    console.log("Token removed on login page entry");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+  }, []);
 
 const handleLogin = async (e) => {
   e.preventDefault();

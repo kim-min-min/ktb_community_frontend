@@ -1,6 +1,8 @@
 // src/pages/PostEditPage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { apiFetch } from "../utils/apiFetch";
+
 const BASE_URL = "/api";
 
 export default function PostEditPage() {
@@ -8,7 +10,6 @@ export default function PostEditPage() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("access_token") || "";
-
   const rawUser = localStorage.getItem("user");
   const currentUser = rawUser ? JSON.parse(rawUser) : null;
 
@@ -22,44 +23,26 @@ export default function PostEditPage() {
   const [newImageFile, setNewImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // 기존 글 불러오기 (처음 진입 / id 변경 시 한 번만)
+  // 기존 글 불러오기
   useEffect(() => {
     const loadPost = async () => {
       if (!token) {
-        alert("로그인 후 이용 가능합니다.");
         navigate("/login");
         return;
       }
 
       try {
-        const res = await fetch(`${BASE_URL}/posts/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (res.status === 401) {
-          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-          navigate("/login");
-          return;
-        }
-
-        const data = await res.json().catch(() => null);
+        const res = await apiFetch(`${BASE_URL}/posts/${id}`, {}, navigate);
+        const data = await res.json();
 
         if (!res.ok || data?.success === false) {
-          throw new Error(
-            data?.detail || data?.message || "게시글을 불러오지 못했습니다."
-          );
+          throw new Error(data?.detail || "게시글을 불러오지 못했습니다.");
         }
 
         const postData = data.post || data;
 
         // 본인 글인지 체크
-        if (
-          currentUser &&
-          postData.user_id &&
-          currentUser.id !== postData.user_id
-        ) {
+        if (currentUser && postData.user_id !== currentUser.id) {
           alert("본인이 작성한 글만 수정할 수 있습니다.");
           navigate(`/posts/${id}`);
           return;
@@ -69,8 +52,7 @@ export default function PostEditPage() {
         setContent(postData.content || "");
         setExistingImagePath(postData.image_path || null);
       } catch (err) {
-        console.error(err);
-        alert(err.message || "게시글 조회 중 오류가 발생했습니다.");
+        alert(err.message);
         navigate("/posts");
       } finally {
         setLoading(false);
@@ -78,9 +60,7 @@ export default function PostEditPage() {
     };
 
     loadPost();
-    // 의도적으로 id 기준으로만 한 번 호출
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, navigate, token, currentUser]);
 
   // 이미지 선택
   const handleFileChange = (e) => {
@@ -91,8 +71,7 @@ export default function PostEditPage() {
       return;
     }
     setNewImageFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   // 미리보기 URL 정리
@@ -120,33 +99,24 @@ export default function PostEditPage() {
       const formData = new FormData();
       formData.append("title", title.trim());
       formData.append("content", content.trim());
+      if (newImageFile) formData.append("image_file", newImageFile);
 
-      // 새 이미지를 선택한 경우에만 전송
-      if (newImageFile) {
-        formData.append("image_file", newImageFile);
-      }
+      const res = await apiFetch(
+        `${BASE_URL}/posts/${id}`,
+        { method: "PUT", body: formData },
+        navigate
+      );
 
-      const res = await fetch(`${BASE_URL}/posts/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await res.json().catch(() => null);
+      const data = await res.json();
 
       if (!res.ok || data?.success === false) {
-        throw new Error(
-          data?.detail || data?.message || "게시글 수정에 실패했습니다."
-        );
+        throw new Error(data?.detail || "게시글 수정에 실패했습니다.");
       }
 
       alert("게시글이 수정되었습니다.");
       navigate(`/posts/${id}`);
     } catch (err) {
-      console.error(err);
-      alert(err.message || "게시글 수정 중 오류가 발생했습니다.");
+      alert(err.message);
     } finally {
       setSaving(false);
     }
@@ -165,7 +135,6 @@ export default function PostEditPage() {
   return (
     <div className="post-detail-page">
       <div className="post-detail-panel">
-        {/* 상단: 뒤로가기 */}
         <div className="post-detail-topbar">
           <button
             type="button"
@@ -176,20 +145,13 @@ export default function PostEditPage() {
           </button>
         </div>
 
-        {/* 제목 영역 */}
         <header className="post-detail-header">
-          <div className="post-detail-title-row">
-            <h1 className="post-detail-title">게시글 수정</h1>
-          </div>
+          <h1 className="post-detail-title">게시글 수정</h1>
         </header>
 
-        {/* 폼 */}
         <form onSubmit={handleSubmit}>
-          {/* 제목 */}
           <div className="field">
-            <label className="field-label">
-              제목 <span style={{ color: "#ff9a9a", fontSize: 12 }}>*</span>
-            </label>
+            <label className="field-label">제목 *</label>
             <input
               type="text"
               className="field-input"
@@ -199,11 +161,8 @@ export default function PostEditPage() {
             />
           </div>
 
-          {/* 내용 */}
           <div className="field">
-            <label className="field-label">
-              내용 <span style={{ color: "#ff9a9a", fontSize: 12 }}>*</span>
-            </label>
+            <label className="field-label">내용 *</label>
             <textarea
               rows={10}
               value={content}
@@ -212,13 +171,11 @@ export default function PostEditPage() {
             />
           </div>
 
-          {/* 이미지 */}
           <div className="field">
             <label className="field-label">이미지</label>
 
-            {/* 기존 이미지 */}
             {existingImagePath && !previewUrl && (
-              <div className="post-detail-image-wrap" style={{ marginTop: 6 }}>
+              <div className="post-detail-image-wrap">
                 <img
                   src={`${BASE_URL}/${existingImagePath}`}
                   alt="현재 이미지"
@@ -227,12 +184,11 @@ export default function PostEditPage() {
               </div>
             )}
 
-            {/* 새 이미지 미리보기 */}
             {previewUrl && (
-              <div className="post-detail-image-wrap" style={{ marginTop: 6 }}>
+              <div className="post-detail-image-wrap">
                 <img
                   src={previewUrl}
-                  alt="새 이미지 미리보기"
+                  alt="새 이미지"
                   className="post-detail-image"
                 />
               </div>
@@ -241,15 +197,11 @@ export default function PostEditPage() {
             <input
               type="file"
               accept="image/*"
-              style={{ marginTop: 8, fontSize: 13, color: "#f0f0ff" }}
               onChange={handleFileChange}
+              style={{ marginTop: 6 }}
             />
-            <div style={{ fontSize: 12, marginTop: 4, color: "#d0d0ff" }}>
-              이미지를 변경하지 않으려면 파일을 선택하지 않아도 됩니다.
-            </div>
           </div>
 
-          {/* 버튼 영역 */}
           <div className="post-edit-actions">
             <button
               type="button"

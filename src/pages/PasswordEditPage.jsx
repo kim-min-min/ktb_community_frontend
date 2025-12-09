@@ -1,13 +1,12 @@
 // src/pages/PasswordEditPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { apiFetch } from "../utils/apiFetch";
 
 const BASE_URL = "/api";
 
 export default function PasswordEditPage() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("access_token") || "";
 
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -31,7 +30,6 @@ export default function PasswordEditPage() {
       return;
     }
 
-    // 백엔드가 8~20자로 검사하니까 맞춰줌
     if (password.length < 8 || password.length > 20) {
       setErrors((prev) => ({
         ...prev,
@@ -48,39 +46,30 @@ export default function PasswordEditPage() {
       return;
     }
 
-    // === API 요청 (FormData + new_password / new_password_confirm) ===
+    // --- FormData 생성 ---
     const formData = new FormData();
     formData.append("new_password", password);
     formData.append("new_password_confirm", passwordConfirm);
 
     try {
-      const res = await fetch(`${BASE_URL}/auth/password`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`, // Content-Type 넣지 말기
+      const res = await apiFetch(
+        `${BASE_URL}/auth/password`,
+        {
+          method: "PUT",
+          body: formData,
         },
-        body: formData,
-      });
+        navigate
+      );
 
       const data = await res.json().catch(() => null);
 
-      if (!res.ok) {
-        // detail / message 우선으로 에러 표시
+      if (!res.ok || data?.success === false) {
         let msg = "비밀번호 변경 실패";
 
         if (data?.detail) {
-          if (typeof data.detail === "string") {
-            msg = data.detail;
-          } else if (Array.isArray(data.detail)) {
-            msg = data.detail
-              .map((item) => item.msg || item.message || JSON.stringify(item))
-              .join("\n");
-          } else if (typeof data.detail === "object") {
-            msg =
-              data.detail.msg ||
-              data.detail.message ||
-              JSON.stringify(data.detail);
-          }
+          if (typeof data.detail === "string") msg = data.detail;
+          else if (Array.isArray(data.detail))
+            msg = data.detail.map((item) => item.msg || item.message).join("\n");
         } else if (data?.message) {
           msg = data.message;
         }
@@ -90,7 +79,7 @@ export default function PasswordEditPage() {
       }
 
       alert(data?.message || "비밀번호가 성공적으로 변경되었습니다.");
-      navigate("/posts"); // 원하면 "/profile" 로 바꿔도 됨
+      navigate("/posts");
     } catch (err) {
       console.error(err);
       alert("비밀번호 변경 중 오류가 발생했습니다.");
@@ -100,7 +89,7 @@ export default function PasswordEditPage() {
   return (
     <div className="post-detail-page">
       <div className="post-detail-panel">
-        {/* 뒤로가기 버튼 */}
+
         <div className="post-detail-topbar">
           <button
             type="button"
@@ -111,7 +100,6 @@ export default function PasswordEditPage() {
           </button>
         </div>
 
-        {/* 제목 */}
         <header className="post-detail-header">
           <div className="post-detail-title-row">
             <h1 className="post-detail-title">비밀번호 수정</h1>
@@ -153,6 +141,7 @@ export default function PasswordEditPage() {
             </button>
           </div>
         </form>
+
       </div>
     </div>
   );

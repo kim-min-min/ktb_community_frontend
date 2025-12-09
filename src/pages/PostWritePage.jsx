@@ -1,5 +1,8 @@
+// src/pages/PostWritePage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/apiFetch";
+
 const BASE_URL = "/api";
 
 export default function PostWritePage() {
@@ -30,45 +33,30 @@ export default function PostWritePage() {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        alert("로그인이 필요합니다.");
-        navigate("/login");
-        return;
-      }
-
       const formData = new FormData();
       formData.append("title", title.trim());
       formData.append("content", content.trim());
       if (imageFile) {
-        formData.append("image_file", imageFile); // 🔥 FastAPI 파라미터 이름과 맞추기
+        formData.append("image_file", imageFile);
       }
 
-      const res = await fetch(`${BASE_URL}/posts`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // ⚠️ Content-Type은 넣지 말 것!
+      const res = await apiFetch(
+        `${BASE_URL}/posts`,
+        {
+          method: "POST",
+          body: formData, // Content-Type 자동 설정됨
         },
-        body: formData,
-      });
+        navigate
+      );
 
-      if (res.status === 401) {
-        alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-        navigate("/login");
-        return;
-      }
-
-      const data = await res.json().catch(() => null);
+      const data = await res.json();
 
       if (!res.ok || data?.success === false) {
-        const msg = data?.message || data?.detail || "게시글 등록에 실패했습니다.";
-        throw new Error(msg);
+        throw new Error(data?.message || data?.detail || "게시글 등록에 실패했습니다.");
       }
 
       alert("게시글이 등록되었습니다.");
 
-      // 새 글 상세로 이동하거나, 목록으로 이동
       if (data.post?.id) {
         navigate(`/posts/${data.post.id}`);
       } else {
@@ -84,7 +72,6 @@ export default function PostWritePage() {
 
   return (
     <div className="posts-page">
-
       <main className="posts-main">
         <section className="posts-panel">
           <div className="posts-toolbar">
