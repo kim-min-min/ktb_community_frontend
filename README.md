@@ -19,7 +19,7 @@
 - <a href="https://github.com/kim-min-min/ktb_community_backend">Back-end Github</a>
 
 ### Agent
-<a href="https://github.com/kim-min-min/ktb_community_agent">Agent Github</a>
+- <a href="https://github.com/kim-min-min/ktb_community_agent">Agent Github</a>
 
 ### 폴더 구조
 <details>
