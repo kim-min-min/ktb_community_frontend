@@ -18,8 +18,8 @@
 ### Back-end
 - <a href="https://github.com/kim-min-min/ktb_community_backend">Back-end Github</a>
 
-### Agent
-- <a href="https://github.com/kim-min-min/ktb_community_agent">Agent Github</a>
+### Ai-agent
+- <a href="https://github.com/kim-min-min/ktb_community_agent">Ai-agent Github</a>
 
 ### 폴더 구조
 <details>
