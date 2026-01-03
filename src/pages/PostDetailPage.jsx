@@ -24,6 +24,7 @@ export default function PostDetailPage() {
   const currentUser = rawUser ? JSON.parse(rawUser) : null;
 
   const token = localStorage.getItem("access_token") || "";
+  const [hidden, setHidden] = useState(false);
 
   const likedStorageKey = currentUser
     ? `liked_posts_user_${currentUser.id}`
@@ -37,28 +38,40 @@ export default function PostDetailPage() {
   // -----------------------------
   // 게시글 상세 불러오기
   // -----------------------------
-  const loadPost = async () => {
-    if (!id) return;
+const loadPost = async () => {
+  if (!id) return;
 
-    setLoading(true);
-    try {
-      const res = await apiFetch(`${BASE_URL}/posts/${id}`, {}, navigate);
-      const data = await res.json();
+  setLoading(true);
+  setHidden(false); 
+  try {
+    const res = await apiFetch(`${BASE_URL}/posts/${id}`, {}, navigate);
 
-      if (!res.ok || data?.success === false) {
-        throw new Error(
-          data?.detail || data?.message || "게시글을 불러오지 못했습니다."
-        );
-      }
-
-      setPost(data.post || data);
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "게시글 조회 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
+    // [추가 1] 숨김/권한/없는 글 처리
+    if (res.status === 404 || res.status === 401 || res.status === 403) {
+      setHidden(true);   // state 하나만 미리 만들어 둔 상태
+      setPost(null);
+      return;
     }
-  };
+
+    // [위치 변경] 성공 케이스에서만 json 파싱
+    const data = await res.json();
+
+    if (!res.ok || data?.success === false) {
+      throw new Error(
+        data?.detail || data?.message || "게시글을 불러오지 못했습니다."
+      );
+    }
+
+    setPost(data.post || data);
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "게시글 조회 중 오류가 발생했습니다.");
+    navigate("/posts");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // 최초 1회 상세 호출
   useEffect(() => {
@@ -242,7 +255,11 @@ export default function PostDetailPage() {
     return (
       <div className="post-detail-page">
         <div className="post-detail-panel">
-          <p className="posts-state-text">게시글을 찾을 수 없습니다.</p>
+          <p className="posts-state-text">
+            {hidden
+              ? "이 게시글은 운영 정책에 의해 숨김 처리되었습니다."
+              : "게시글을 찾을 수 없습니다."}
+          </p>
           <button
             type="button"
             className="detail-back-btn"
