@@ -60,7 +60,7 @@ export default function PostEditPage() {
     };
 
     loadPost();
-  }, [id, navigate, token, currentUser]);
+  }, [id, navigate]);
 
   // 이미지 선택
   const handleFileChange = (e) => {

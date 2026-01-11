@@ -8,10 +8,6 @@ const BASE_URL = "/api";
 export default function ProfileEditPage() {
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("access_token") || "";
-  const rawUser = localStorage.getItem("user");
-  const currentUser = rawUser ? JSON.parse(rawUser) : null;
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -22,21 +18,29 @@ export default function ProfileEditPage() {
   const [newImageFile, setNewImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // 유저 정보 불러오기
+  // -----------------------------
+  // 유저 정보 불러오기 (초기 1회)
+  // -----------------------------
   useEffect(() => {
+    const token = localStorage.getItem("access_token") || "";
+    const rawUser = localStorage.getItem("user");
+    const currentUser = rawUser ? JSON.parse(rawUser) : null;
+
     if (!currentUser || !token) {
       navigate("/login");
       return;
     }
 
-    setEmail(currentUser.email);
-    setNickname(currentUser.nickname);
+    setEmail(currentUser.email || "");
+    setNickname(currentUser.nickname || "");
     setExistingImagePath(currentUser.profile_image_path || null);
 
     setLoading(false);
-  }, [currentUser, navigate, token]);
+  }, [navigate]);
 
+  // -----------------------------
   // 이미지 변경
+  // -----------------------------
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -44,20 +48,21 @@ export default function ProfileEditPage() {
       setPreviewUrl(null);
       return;
     }
+
     setNewImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // 미리보기 URL 해제
+  // 미리보기 URL 정리(누수 방지)
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
-  // ---------------
+  // -----------------------------
   // 회원정보 수정 요청
-  // ---------------
+  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,16 +76,11 @@ export default function ProfileEditPage() {
     try {
       const formData = new FormData();
       formData.append("nickname", nickname.trim());
-      if (newImageFile) {
-        formData.append("profile_image", newImageFile);
-      }
+      if (newImageFile) formData.append("profile_image", newImageFile);
 
       const res = await apiFetch(
         `${BASE_URL}/auth/profile`,
-        {
-          method: "PUT",
-          body: formData,
-        },
+        { method: "PUT", body: formData },
         navigate
       );
 
@@ -90,7 +90,7 @@ export default function ProfileEditPage() {
         throw new Error(data?.detail || "회원정보 수정 실패");
       }
 
-      // localStorage 갱신
+      // localStorage 갱신 (앱 전체에서 최신 유저정보 쓰게)
       localStorage.setItem("user", JSON.stringify(data.user));
 
       alert("회원정보가 수정되었습니다.");
@@ -103,11 +103,16 @@ export default function ProfileEditPage() {
     }
   };
 
-  // ---------------
+  // -----------------------------
   // 회원 탈퇴
-  // ---------------
+  // -----------------------------
   const handleDelete = async () => {
-    if (!confirm("정말 탈퇴하시겠습니까?\n작성한 게시글과 댓글이 모두 삭제됩니다.")) return;
+    if (
+      !confirm(
+        "정말 탈퇴하시겠습니까?\n작성한 게시글과 댓글이 모두 삭제됩니다."
+      )
+    )
+      return;
 
     try {
       const res = await apiFetch(
@@ -131,6 +136,9 @@ export default function ProfileEditPage() {
     }
   };
 
+  // -----------------------------
+  // 로딩 화면
+  // -----------------------------
   if (loading) {
     return (
       <div className="post-detail-page">
@@ -141,6 +149,9 @@ export default function ProfileEditPage() {
     );
   }
 
+  // -----------------------------
+  // 렌더링
+  // -----------------------------
   return (
     <div className="post-detail-page">
       <div className="post-detail-panel">
@@ -175,7 +186,12 @@ export default function ProfileEditPage() {
                 alt="profile"
                 className="profile-edit-image"
               />
-              <input type="file" accept="image/*" hidden onChange={handleFileChange} />
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleFileChange}
+              />
               <span className="profile-image-overlay">변경</span>
             </label>
           </div>
@@ -183,7 +199,12 @@ export default function ProfileEditPage() {
           {/* 이메일 (읽기전용) */}
           <div className="field">
             <label className="field-label">이메일</label>
-            <input type="text" className="field-input" value={email} disabled />
+            <input
+              type="text"
+              className="field-input"
+              value={email}
+              disabled
+            />
           </div>
 
           {/* 닉네임 */}
@@ -203,11 +224,16 @@ export default function ProfileEditPage() {
               type="button"
               className="detail-small-btn"
               onClick={() => navigate("/posts")}
+              disabled={saving}
             >
               취소
             </button>
 
-            <button type="submit" className="comment-submit-btn" disabled={saving}>
+            <button
+              type="submit"
+              className="comment-submit-btn"
+              disabled={saving}
+            >
               {saving ? "수정 중..." : "수정하기"}
             </button>
           </div>
@@ -216,6 +242,7 @@ export default function ProfileEditPage() {
         {/* 회원 탈퇴 */}
         <div style={{ marginTop: 20, textAlign: "center" }}>
           <button
+            type="button"
             className="detail-small-btn"
             style={{ background: "#444", color: "#fff" }}
             onClick={handleDelete}
